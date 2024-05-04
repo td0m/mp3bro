@@ -1,3 +1,4 @@
 {
-  "dir": "/srv/audio/music"
+  "dir": "/srv/audio/music",
+	"publicUrl": "https://f.tdom.dev/audio/music/"
 }

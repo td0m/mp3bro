@@ -1,9 +1,11 @@
 import {spawn} from 'node:child_process'
 import { readdir, mkdir } from 'node:fs/promises'
-import * as db from '../db/index.mjs'
 import { join } from 'node:path'
+import conf from '../conf.json' with { type: "json" }
+import * as db from '../db/index.mjs'
 
-export async function start(url, dir) {
+export async function start(url, folder, title) {
+  const dir = join(conf.dir, folder)
   try {
 		await mkdir(dir)
 	} catch(err) {
@@ -12,7 +14,7 @@ export async function start(url, dir) {
 	const name = ["-o", `%(title)s.%(ext)s`]
 	let args = [...name, "--download-archive", "archive.txt", "--extract-audio", "--audio-format", "mp3", "--playlist-end", "100", url]
 	const proc = spawn("yt-dlp", args, { detached: true, cwd: dir })
-	let download = db.processes.create({ pid: proc.pid.toString(), status: "pending" })
+	let download = db.processes.create({ pid: proc.pid.toString(), url, status: "pending", title, dir: folder })
 	proc.stdout.on('data', data => {
 	  console.log('>', data.toString())
 	})
@@ -51,10 +53,10 @@ async function clearStopped() {
 }
 
 
-export async function listDirs(dir) {
-  let dirs = (await readdir(dir, { recursive: true, withFileTypes: true }))
+export async function listDirs() {
+  let dirs = (await readdir(conf.dir, { recursive: true, withFileTypes: true }))
 	  .filter(f => f.isDirectory())
-	  .map(d => join(d.parentPath, d.name).slice(dir.length+1));
+	  .map(d => join(d.parentPath, d.name).slice(conf.dir.length+1));
 	
 	dirs.sort()
 	return dirs

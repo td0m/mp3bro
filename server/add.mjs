@@ -1,4 +1,3 @@
-import { join } from 'node:path'
 import J from 'joi'
 import { page, html } from './util.mjs'
 import conf from '../conf.json' with { type: "json" }
@@ -16,13 +15,14 @@ export const schema = {
 export async function handler (req, res) {
   const { url, folder, title } = req.query
 	if (!folder) {
-	  const dirs = await downloader.listDirs(conf.dir)
+	  const dirs = await downloader.listDirs()
 	  return res.type("text/html").send(page({
 		  body: html`
 			  <form action="/add" method="GET">
 				  <p>${title}</p>
 				  <p><code>${url}</code></p>
 				  <input type="hidden" name="url" value="${url}" />
+				  <input type="hidden" name="title" value="${title}" />
 				  <select name="folder">
 					  $${dirs.map(d => html`
 						  <option value="${d}">${d}</option>
@@ -33,8 +33,7 @@ export async function handler (req, res) {
 			`
 		}))
 	} else {
-		const out = join(conf.dir, folder)
-		await downloader.start(url, out)
+		await downloader.start(url, folder, title)
 		res.code(303).redirect("/")
 	}
 }

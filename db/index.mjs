@@ -7,7 +7,10 @@ export default () => {
 	exec(`
 		create table if not exists processes(
 			pid text primary key,
+			url text not null,
 			status text not null check(status='pending' or status='done'),
+			title text not null default '',
+			dir text not null default '',
 		  created text not null default current_timestamp,
 		  updated text not null default current_timestamp
 		) strict;
