@@ -7,7 +7,7 @@ import * as db from './db.js'
 const exec = promisify(execCallback)
 
 function dir(id) {
-	return `/srv/www/out/media/${id}`
+	return `/srv/www/media/${id}`
 }
 
 export async function withComputed(download) {
